@@ -1,0 +1,113 @@
+﻿@model List<ChatApp.Models.Message>
+
+@{
+    ViewData["Title"] = "Public Talk";
+}
+
+<link rel="stylesheet" href="~/css/chat.css" />
+
+<div class="chat-page">
+
+    <div class="chat-card">
+
+        <!-- Header -->
+        <div class="chat-header">
+            <div class="header-icon">💬</div>
+
+            <div class="header-info">
+                <h2>Public Talk</h2>
+                <span>
+                    <span class="online-dot"></span>
+                    Everyone can chat here
+                </span>
+            </div>
+        </div>
+
+        <!-- Chat Messages -->
+        <div class="chat-messages" id="chatMessages">
+            @if (Model != null  && Model.Count>0 )
+            {
+
+                foreach (var msg in Model)
+                {
+
+
+                   
+                    if(msg.UserName == User.Identity.Name)
+                    {
+                        <div class="message-row sent">
+
+
+                        </div>
+                    }
+                    else
+                    {
+                         <div class="message-row received">
+
+
+                        </div>
+                    }
+                        
+                       
+                        <div class="sender-name">
+                            @msg.UserName
+                        </div>
+                        <div class="message-bubble">
+                            @msg.Text
+                        </div>
+                        <div class="message-time">
+                            @msg.When.ToLocalTime()
+                        </div>
+
+
+                  
+
+
+                }
+            }
+            else
+            {
+
+
+                <div class="welcome-message">
+                <span>👋</span>
+                <h3>Welcome to Public Talk!</h3>
+                <p>Start a conversation with everyone.</p>
+            </div>
+            }
+        </div>
+
+        <!-- Message Input -->
+        <div class="chat-input-area">
+
+            <form id="messageForm">
+
+                <input type="text"
+                       id="messageInput"
+                       data-username="@User.Identity?.Name"
+                       placeholder="Type your message here..."
+                       autocomplete="off"
+                       maxlength="1000"
+                       required />
+
+                <button type="submit" id="sendButton">
+                    Send
+                    <span>➤</span>
+                </button>
+
+            </form>
+
+            <small>Press Enter to send your message</small>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts {
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.7/signalr.min.js"></script>
+
+    <script src="~/js/chat.js"></script>
+}
