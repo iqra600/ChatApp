@@ -1,0 +1,182 @@
+﻿@* @model ChatApp.ViewModels.ChatListViewModel
+ *@
+@{
+    ViewData["Title"] = "My Chats";
+}
+
+<style>
+    body {
+        background: #f4f6f8;
+    }
+
+    .chat-list-container {
+        max-width: 750px;
+        margin: 35px auto;
+        background: white;
+        border-radius: 12px;
+        padding: 25px;
+        box-shadow: 0 3px 15px rgba(0,0,0,.08);
+    }
+
+    .chat-title {
+        font-size: 25px;
+        font-weight: 600;
+        margin-bottom: 20px;
+    }
+
+    .start-chat {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .start-chat input {
+        border-radius: 8px;
+        padding: 12px;
+    }
+
+    .start-chat button {
+        background: #075e54;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 10px 22px;
+    }
+
+    .chat-item {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 16px 10px;
+        border-bottom: 1px solid #eee;
+        text-decoration: none;
+        color: #222;
+    }
+
+    .chat-item:hover {
+        background: #f7f9f8;
+    }
+
+    .avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: #d9f3e8;
+        color: #075e54;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 21px;
+        font-weight: bold;
+        flex-shrink: 0;
+    }
+
+    .user-details {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .user-details h6 {
+        margin: 0 0 5px;
+        font-weight: 600;
+    }
+
+    .user-details small {
+        color: #777;
+    }
+
+    .last-message {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+</style>
+
+<div class="chat-list-container">
+
+    <div class="chat-title">
+        My Chats starts
+    </div>
+
+    <!-- Start Chat -->
+    <form asp-controller="Home"
+    
+          asp-action="ViewChat"
+          method="Get"
+          class="start-chat" >
+
+        @Html.AntiForgeryToken()
+
+        <input type="text"
+               name="receiverId"
+               class="form-control"
+               placeholder="Enter receiver user ID..."
+                />
+
+        <button type="submit">
+            Send
+        </button>
+
+    </form>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["Error"]
+        </div>
+    }
+
+    <!-- Existing Chats -->
+    <h6 class="mb-3">Recent Conversations</h6>
+@* 
+    @if (Model.Conversations.Any())
+    {
+        @foreach (var chat in Model.Conversations)
+        {
+            <a asp-controller="Chat"
+               asp-action="Conversation"
+               asp-route-id="@chat.ConversationId"
+               class="chat-item">
+
+                <div class="avatar">
+                    @(string.IsNullOrEmpty(chat.UserName)
+                        ? "U"
+                        : chat.UserName.Substring(0, 1).ToUpper())
+                </div>
+
+                <div class="user-details">
+
+                    <h6>@chat.UserName</h6>
+
+                    <small>@chat.Email</small>
+
+                    <div class="last-message">
+                        @if (!string.IsNullOrEmpty(chat.LastMessage))
+                        {
+                            @chat.LastMessage
+                        }
+                        else
+                        {
+                            <span>Start a conversation</span>
+                        }
+                    </div>
+
+                </div>
+
+                <small class="text-muted">
+                    @chat.LastMessageTime?.ToString("hh:mm tt")
+                </small>
+
+            </a>
+        }
+    }
+    else
+    { *@
+        <div class="text-center text-muted p-4">
+            No conversations yet.
+            <br />
+            Enter a user ID above to start chatting.
+        </div>
+  //  }
+
+</div>

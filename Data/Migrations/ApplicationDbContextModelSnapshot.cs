@@ -87,6 +87,34 @@ namespace ChatApp.Data.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("ChatApp.Models.Conversaton", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ReciverId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("SenderId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ReciverId");
+
+                    b.HasIndex("SenderId");
+
+                    b.ToTable("Conversations");
+                });
+
             modelBuilder.Entity("ChatApp.Models.Message", b =>
                 {
                     b.Property<int>("ID")
@@ -94,6 +122,13 @@ namespace ChatApp.Data.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
+
+                    b.Property<int>("CoversationId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ReciverId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Text")
                         .IsRequired()
@@ -111,6 +146,10 @@ namespace ChatApp.Data.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("ID");
+
+                    b.HasIndex("CoversationId");
+
+                    b.HasIndex("ReciverId");
 
                     b.HasIndex("UserID");
 
@@ -254,13 +293,48 @@ namespace ChatApp.Data.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("ChatApp.Models.Conversaton", b =>
+                {
+                    b.HasOne("ChatApp.Models.AppUser", "Reciever")
+                        .WithMany("Recivers")
+                        .HasForeignKey("ReciverId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ChatApp.Models.AppUser", "Sender")
+                        .WithMany("Senders")
+                        .HasForeignKey("SenderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Reciever");
+
+                    b.Navigation("Sender");
+                });
+
             modelBuilder.Entity("ChatApp.Models.Message", b =>
                 {
+                    b.HasOne("ChatApp.Models.Conversaton", "Conversation")
+                        .WithMany("Messages")
+                        .HasForeignKey("CoversationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ChatApp.Models.AppUser", "Reciver")
+                        .WithMany()
+                        .HasForeignKey("ReciverId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("ChatApp.Models.AppUser", "Sender")
                         .WithMany("messages")
                         .HasForeignKey("UserID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Conversation");
+
+                    b.Navigation("Reciver");
 
                     b.Navigation("Sender");
                 });
@@ -318,7 +392,16 @@ namespace ChatApp.Data.Migrations
 
             modelBuilder.Entity("ChatApp.Models.AppUser", b =>
                 {
+                    b.Navigation("Recivers");
+
+                    b.Navigation("Senders");
+
                     b.Navigation("messages");
+                });
+
+            modelBuilder.Entity("ChatApp.Models.Conversaton", b =>
+                {
+                    b.Navigation("Messages");
                 });
 #pragma warning restore 612, 618
         }

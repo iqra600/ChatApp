@@ -1,147 +1,228 @@
-﻿ 
+﻿
+// ============================================
+// 1. SIGNALR CONNECTION
+// ============================================
+
 const connection = new signalR.HubConnectionBuilder()
     .withUrl("/chatHub")
     .withAutomaticReconnect()
     .build();
 
+
+// ============================================
+// 2. INDEX PAGE ELEMENTS
+// ============================================
+
 const messageForm = document.getElementById("messageForm");
 const messageInput = document.getElementById("messageInput");
 const chatMessages = document.getElementById("chatMessages");
 
-const input= messageForm.querySelector('input[type="text"]');
-const username= input.dataset.username;
-
+const username = messageInput?.dataset.username;
+const ReciverID = messageInput?.dataset.reciverid;
 
 // Current logged-in user ID
 const currentUserId = document.body.dataset.userId;
 
-// Receive message
+
+// ============================================
+// 3. RECEIVE MESSAGE EVENT
+// ============================================
+
 connection.on("msgRecieve", function (message) {
+
     console.log("Message received:", message);
+
     displayMessage(message);
 });
 
-// Display message
+
+// ============================================
+// 4. DISPLAY MESSAGE METHOD
+// ============================================
+
 function displayMessage(message) {
 
+    
+    // Remove welcome message
     const welcome = document.querySelector(".welcome-message");
 
     if (welcome) {
         welcome.remove();
     }
 
-    const isMine = message.userID === currentUserId;
+    // Check whether message belongs to logged-in user
+    const messageUserId = message.userID ?? message.UserID;
 
+    const isMine =
+        String(messageUserId) === String(currentUserId);
+
+    // Message row
     const messageRow = document.createElement("div");
 
     messageRow.className = isMine
         ? "message-row sent"
         : "message-row received";
 
+    // Sender name
     const sender = document.createElement("div");
+
     sender.className = "sender-name";
-    sender.textContent = message.userName;
 
+    sender.textContent = message.userName ?? message.UserName;
+
+    // Message text
     const bubble = document.createElement("div");
-    bubble.className = "message-bubble";
-    bubble.textContent = message.text;
 
+    bubble.className = "message-bubble";
+
+    bubble.textContent = message.text ?? message.Text;
+
+    // Message time
     const time = document.createElement("small");
+
     time.className = "message-time";
 
-    time.textContent = new Date(message.when)
+    const messageDate = message.when ?? message.When;
+
+    time.textContent = new Date(messageDate)
         .toLocaleTimeString([], {
             hour: "2-digit",
             minute: "2-digit"
         });
 
+    // Append elements
     messageRow.appendChild(sender);
     messageRow.appendChild(bubble);
     messageRow.appendChild(time);
 
     chatMessages.appendChild(messageRow);
 
+    // Scroll window to bottom after new message
+    scrolldown();
+
+    // Scroll to latest message
     chatMessages.scrollTop = chatMessages.scrollHeight;
+
+}
+window.addEventListener("load", scrollToBottom);
+function scrolldown() {
+    requestAnimationFrame(() => {
+        window.scrollTo({
+            top: document.documentElement.scrollHeight,
+            behavior: "smooth"
+        });
+    });
 }
 
-// Send message
-// messageForm.addEventListener("submit", async function (e) {
 
-//     e.preventDefault();
 
-//     const text = messageInput.value.trim();
 
-//     if (!text) return;
 
-//     try {
 
-//         await connection.invoke("SendMessage", {
-//             text: text
-//         });
+// ============================================
+// SCROLL TO LAST MESSAGE ON PAGE LOAD
+// ============================================
 
-//         messageInput.value = "";
-//         messageInput.focus();
 
-//     }
-//     catch (error) {
+function scrollToBottom() {
+    window.scrollTo({
+        top: document.documentElement.scrollHeight,
+        behavior: "smooth"
+    });
+}
 
-//         console.error("Message sending error:", error);
 
-//     }
+// ============================================
+// 5. SEND MESSAGE METHOD
+// ============================================
 
-// });
-messageForm.addEventListener("submit", async function (e) {
 
-    e.preventDefault();
+    messageForm.addEventListener("submit", async function (e) {
 
-    const text = messageInput.value.trim();
+        e.preventDefault();
 
-    if (!text) return;
+        const text = messageInput.value.trim();
 
-    try {
+        if (!text) return;
 
-        const response = await fetch('/Home/Create', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                text: text           
-            })
-        });
+        try {
 
-        if (!response.ok) {
-            throw new Error("Message sending failed");
+            const response = await fetch("/Home/Create", {
+
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+
+                    text: text,
+
+                    ReciverId: ReciverID
+
+                })
+            });
+
+            if (!response.ok) {
+
+                throw new Error("Message sending failed");
+
+            }
+
+            messageInput.value = "";
+
+            messageInput.focus();
+
         }
+        catch (error) {
 
-        messageInput.value = "";
-        messageInput.focus();
+            console.error("Message sending error:", error);
 
-    }
-    catch (error) {
-        console.error(error);
-    }
-});
+        }
+    });
 
-// Start connection
+
+
+// ============================================
+// 6. START SIGNALR CONNECTION
+// ============================================
+
 async function startConnection() {
 
     try {
 
         await connection.start();
 
-        console.log("SignalR connected!");
+        console.log("Index SignalR connected!");
 
     }
     catch (error) {
 
-        console.error(error);
+        console.error("SignalR connection error:", error);
 
         setTimeout(startConnection, 5000);
+
     }
 }
 
 startConnection();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

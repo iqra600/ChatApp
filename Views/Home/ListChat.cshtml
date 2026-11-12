@@ -1,0 +1,158 @@
+﻿@model IEnumerable<ChatApp.Models.Conversaton>
+
+@{
+    ViewData["Title"] = "Public Talk";
+    var userdata = ViewBag.user as AppUser;
+
+}
+
+<link rel="stylesheet" href="~/css/chat-list.css" />
+
+<div class="inbox-container">
+
+    <div class="inbox-header">
+        <h2>💬 Public Talk</h2>
+        <p>Your conversations</p>
+    </div>
+
+    <!-- Start new chat -->
+    <div class="new-chat-section">
+
+        <form asp-action="Index"
+              method="get"
+              id="newChatForms">
+
+            <input type="text"
+                   name="ReciverId"
+                   id="receiverId"
+                   placeholder="Enter receiver ID..."
+                   required />
+
+            <button type="submit" id="btnfind">
+                find
+            </button>
+
+        </form>
+
+    </div>
+
+    
+    <!-- Existing conversations -->
+    <div class="conversation-section" id="ChatList">
+
+        <h4>Recent Chats</h4>
+
+        @if (Model != null && Model.Any())
+        {
+            foreach (var chat in Model)
+            {
+                string name = "";
+                if (chat.Sender.UserName == userdata.UserName)
+                {
+                    name = chat.Reciever.UserName;
+
+                }
+                else
+                {
+
+                    if (chat.Reciever.UserName == userdata.UserName)
+                    {
+                        name = chat.Sender.UserName;
+                    }
+                }
+
+                if (userdata != null)
+                {
+                    if (chat.ReciverId == userdata.Id && chat.SenderId == userdata.Id)
+                    {
+                        //  mention the (YOU) word with this row its mean this conversation done by same user with herself.
+                        <a asp-controller="Home"
+                           asp-action="Index"
+                           asp-route-Id="@chat.Id"
+                           asp-route-ReciverId="@chat.ReciverId"
+                           data-conversation-id="@chat.Id"
+                           class="conversation-row">
+
+                            <div class="user-avatar">
+                                @name.Substring(0, 1).ToUpper() <span>(YOU)</span>
+                            </div>
+
+                            <div class="conversation-info">
+
+                                <h5>@name</h5>
+
+                                <small>
+                                    Conversation started
+                                </small>
+
+                            </div>
+
+                            <div class="conversation-date">
+
+                                @chat.CreatedAt.ToString("dd MMM yyyy")
+
+                                <small>
+                                    @chat.CreatedAt.ToString("hh:mm tt")
+                                </small>
+
+                            </div>
+
+                        </a>
+                    }
+                    else
+                    {
+                        <a asp-controller="Home"
+                           asp-action="Index"
+                           asp-route-Id="@chat.Id"
+                           asp-route-ReciverId="@chat.ReciverId"
+                           data-conversation-id="@chat.Id"
+                           class="conversation-row">
+
+                            <div class="user-avatar">
+                                @name.Substring(0, 1).ToUpper()
+                            </div>
+
+                            <div class="conversation-info">
+
+                                <h5>@name</h5>
+
+                                <small>
+                                    Conversation started
+                                </small>
+
+                            </div>
+
+                            <div class="conversation-date">
+
+                                @chat.CreatedAt.ToString("dd MMM yyyy")
+
+                                <small>
+                                    @chat.CreatedAt.ToString("hh:mm tt")
+                                </small>
+
+                            </div>
+
+                        </a>
+
+                    }
+                }
+            }
+        }
+        else
+        {
+            <div class="empty-chat">
+                <h4>No conversations yet</h4>
+                <p>Enter a receiver ID above to start chatting.</p>
+            </div>
+        }
+
+    </div>
+
+</div>
+@section Scripts {
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.7/signalr.min.js"></script>
+
+    
+    <script src="~/js/conversationList.js" asp-append-version="true"></script>
+}

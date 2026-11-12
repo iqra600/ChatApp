@@ -11,7 +11,11 @@ namespace ChatApp.Models
         }
 
         public   ICollection<Message> messages { get; set; }
-       
+        public ICollection<Conversaton> Senders { get; set; }
+        public ICollection<Conversaton> Recivers { get; set; }
+
+
+
 
 
 

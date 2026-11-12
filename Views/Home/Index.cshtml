@@ -25,7 +25,7 @@
 
         <!-- Chat Messages -->
         <div class="chat-messages" id="chatMessages">
-            @if (Model != null  && Model.Count>0 )
+            @if (Model != null && Model.Count > 0)
             {
 
                 foreach (var msg in Model)
@@ -33,35 +33,43 @@
 
 
                    
-                    if(msg.UserName == User.Identity.Name)
+                    if (msg.UserName == User.Identity.Name)
                     {
                         <div class="message-row sent">
-
+                            <div class="sender-name">
+                                @msg.UserName
+                            </div>
+                            <div class="message-bubble">
+                                @msg.Text
+                            </div>
+                            <div class="message-time">
+                                @msg.When.ToLocalTime()
+                            </div>
 
                         </div>
                     }
                     else
                     {
-                         <div class="message-row received">
-
+                        <div class="message-row received">
+                            <div class="sender-name">
+                                @msg.UserName
+                            </div>
+                            <div class="message-bubble">
+                                @msg.Text
+                            </div>
+                            <div class="message-time">
+                                @msg.When.ToLocalTime()
+                            </div>
 
                         </div>
                     }
+
                         
                        
-                        <div class="sender-name">
-                            @msg.UserName
-                        </div>
-                        <div class="message-bubble">
-                            @msg.Text
-                        </div>
-                        <div class="message-time">
-                            @msg.When.ToLocalTime()
-                        </div>
+                       
 
 
                   
-
 
                 }
             }
@@ -70,10 +78,10 @@
 
 
                 <div class="welcome-message">
-                <span>👋</span>
-                <h3>Welcome to Public Talk!</h3>
-                <p>Start a conversation with everyone.</p>
-            </div>
+                    <span>👋</span>
+                    <h3>Welcome to Public Talk!</h3>
+                    <p>Start a conversation with everyone.</p>
+                </div>
             }
         </div>
 
@@ -81,10 +89,10 @@
         <div class="chat-input-area">
 
             <form id="messageForm">
-
                 <input type="text"
                        id="messageInput"
                        data-username="@User.Identity?.Name"
+                       data-reciverid="@ViewBag.ReciverID"
                        placeholder="Type your message here..."
                        autocomplete="off"
                        maxlength="1000"
@@ -101,6 +109,7 @@
 
         </div>
 
+        
     </div>
 
 </div>
@@ -109,5 +118,7 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.7/signalr.min.js"></script>
 
-    <script src="~/js/chat.js"></script>
+    <script src="~/js/chat.js" asp-append-version="true"></script>
+
 }
+
